@@ -81,36 +81,32 @@ def start_face_recognition_process(allowed_people_face_encodings, allowed_people
     
     PID = os.fork()
 
-    while True:
-        if PID < 0:
-            print ('Creation of child process for facial recognition was unsuccessful.')
-            #break
+    if PID < 0:
+        print ('Creation of child process for facial recognition was unsuccessful.')
+    
+    # child process just performs facial recogntion
+    elif PID == 0:
+        print('Running child process for facial recognition.')
+        face_rec(child_connection, allowed_people_face_encodings, allowed_people_names,)
         
-        # child process just performs facial recogntion
-        elif PID == 0:
-            print('Running child process for facial recognition.')
-            face_rec(child_connection, allowed_people_face_encodings, allowed_people_names,)
-            
-        # main process will run keypad code and servo motor code
-        else:
-            # Receive the name of the person from the child process
-            person = parent_connection.recv()
-            #print(person)
-            password = input('Please enter the password: ')
-            correct_password = '12345'
+    # main process will run keypad code and servo motor code
+    else:
+        # Receive the name of the person from the child process
+        person = parent_connection.recv()
+        print(person)
+        password = input('Please enter the password: ')
+        correct_password = '12345'
 
-            while (password != correct_password):
-                password = input('Please try entering the password again: ')
+        while (password != correct_password):
+            password = input('Please try entering the password again: ')
+        
+        if person in allowed_people_names:
+            print('Access granted to ' + person)
             
-            if person in allowed_people_names:
-                print('Access granted to ' + person)
-        break
-        #This is just a test
-        #if password==correct_password and person=='Katherine Reed':
-            #print('Access granted to ' + person)
-            # motor code to unlock
-        #else:
-            #print("Access NOT granted.")
+            #PUT MOTOR CODE TO UNLOCK THE BOX HERE
+
+        else:
+            print('Access not granted.')
 
 
 def main():
